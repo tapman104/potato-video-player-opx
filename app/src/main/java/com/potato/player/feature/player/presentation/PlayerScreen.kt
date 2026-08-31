@@ -1,4 +1,4 @@
-package com.potato.player.feature.player.ui
+package com.potato.player.feature.player.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.potato.player.feature.player.PlayerViewModel
 import com.potato.player.feature.player.controls.PlayerBottomControls
 import com.potato.player.feature.player.controls.PlayerCenterPlayPause
 
@@ -44,15 +43,14 @@ fun PlayerScreen(
 
         // 1. Video output surface — fills the entire Box
         VideoSurface(
-            controller = viewModel.asController(),
+            controller = viewModel.controller,
             modifier   = Modifier.fillMaxSize()
         )
 
         // 2. Centre play/pause button
         PlayerCenterPlayPause(
             isPlaying = isPlaying,
-            onClick   = { viewModel.togglePlay() },
-            modifier  = Modifier.align(Alignment.Center)
+            onClick   = { viewModel.togglePlay() }
         )
 
         // 3. Bottom seek + transport controls

@@ -77,7 +77,6 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
-        MpvFontInstaller.install(appContext)
         MPVLib.create(appContext)
         MPVLib.addObserver(this)
         configurator.initOptions(appContext)
@@ -99,11 +98,9 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
      */
     fun destroy() {
         if (!destroyed.compareAndSet(false, true)) return
-        // Call MPVLib directly here — the guard in detachSurface() returns early
-        // once destroyed == true, so we do the teardown inline.
-        MPVLib.setPropertyString(MpvProp.VO,           "null")
-        MPVLib.setPropertyString(MpvProp.FORCE_WINDOW, "no")
-        MPVLib.detachSurface()
+        // Call detachSurfaceInternal() directly here — the guard in detachSurface() returns early
+        // once destroyed == true, so we do the teardown inline via the shared helper.
+        detachSurfaceInternal()
         MPVLib.removeObserver(this)
         MPVLib.destroy()
 
@@ -137,6 +134,15 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
      */
     override fun detachSurface() {
         if (destroyed.get()) return
+        detachSurfaceInternal()
+    }
+
+    /**
+     * Shared teardown: set VO→null, clear force-window, then detach.
+     * Called from both detachSurface() (live) and destroy() (bypasses the
+     * destroyed guard directly since the flag is already set by then).
+     */
+    private fun detachSurfaceInternal() {
         MPVLib.setPropertyString(MpvProp.VO,           "null")
         MPVLib.setPropertyString(MpvProp.FORCE_WINDOW, "no")
         MPVLib.detachSurface()
@@ -257,7 +263,7 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
     }
 
     fun setRotation(degrees: Int) {
-        ifAlive("setRotation") { MPVLib.setPropertyInt("video-rotate", degrees) }
+        ifAlive("setRotation") { MPVLib.setPropertyInt(MpvProp.VIDEO_ROTATE, degrees) }
     }
 
     // ── Internal property accessors (not for callers outside this package) ────
@@ -295,8 +301,8 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
 
     override fun eventProperty(name: String, value: Boolean) {
         when (name) {
-            MpvProp.PAUSE -> _engineState.update { it.copy(paused = value) }
-            "paused-for-cache" -> _engineState.update { it.copy(pausedForCache = value) }
+            MpvProp.PAUSE          -> _engineState.update { it.copy(paused = value) }
+            MpvProp.PAUSED_FOR_CACHE -> _engineState.update { it.copy(pausedForCache = value) }
         }
     }
 
@@ -320,10 +326,10 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
 
     override fun eventProperty(name: String, value: Long) {
         when (name) {
-            MpvProp.SUB_POS       -> _engineState.update { it.copy(subPos = value) }
-            MpvProp.VIDEO_PARAMS_W -> _engineState.update { it.copy(videoWidth = value) }
-            MpvProp.VIDEO_PARAMS_H -> _engineState.update { it.copy(videoHeight = value) }
-            "cache-buffering-state" -> _engineState.update { it.copy(cacheBufferingState = value.toInt()) }
+            MpvProp.SUB_POS               -> _engineState.update { it.copy(subPos = value) }
+            MpvProp.VIDEO_PARAMS_W         -> _engineState.update { it.copy(videoWidth = value) }
+            MpvProp.VIDEO_PARAMS_H         -> _engineState.update { it.copy(videoHeight = value) }
+            MpvProp.CACHE_BUFFERING_STATE  -> _engineState.update { it.copy(cacheBufferingState = value.toInt()) }
         }
     }
 
@@ -351,5 +357,20 @@ class MpvWrapper(context: Context) : MPVLib.EventObserver, PlayerController {
         _lifecycleRelay.trySend(lifecycle)
     }
 
-    companion object { private const val TAG = "MpvWrapper" }
+    companion object {
+        private const val TAG = "MpvWrapper"
+
+        /**
+         * Installs font assets on [Dispatchers.IO]. Must be called before the
+         * first subtitle is rendered; safe to call concurrently with MPV init
+         * because MPV reads sub-fonts-dir lazily at subtitle render time.
+         *
+         * Call from Activity.onCreate() using lifecycleScope.
+         */
+        fun installAssets(appContext: Context, scope: CoroutineScope) {
+            scope.launch(Dispatchers.IO) {
+                MpvFontInstaller.install(appContext)
+            }
+        }
+    }
 }

@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.potato.player.engine.MpvWrapper
 import kotlinx.coroutines.flow.first
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.lifecycleScope
 
 private val AmoledDarkColorScheme = darkColorScheme(
     background        = Color(0xFF000000),
@@ -39,10 +40,15 @@ class MainActivity : ComponentActivity() {
     // pendingIntent is ONLY used by the onNewIntent (hot re-open) path.
     // Cold-start routing is handled by resolveStartDestination() before setContent.
     private var pendingIntent by mutableStateOf<Intent?>(null)
-    private val mpvWrapper by lazy { MpvWrapper(applicationContext) }
+    private val mpvWrapper by lazy(LazyThreadSafetyMode.NONE) { MpvWrapper(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Font assets are installed off the Main thread before MPV needs them.
+        // MPV reads sub-fonts-dir lazily at subtitle render time, so this is safe
+        // to run concurrently with MpvWrapper construction.
+        MpvWrapper.installAssets(applicationContext, lifecycleScope)
 
         // MpvWrapper initializes in its init block, so just by accessing it, it initializes.
         val wrapper = mpvWrapper
