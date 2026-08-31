@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.potato.player.domain.SeekController
 
 // ---------------------------------------------------------------------------
 // VideoFitMode — declared here so PlayerBottomControls can import from the
@@ -49,6 +50,12 @@ class PlayerViewModel(
     engineState: StateFlow<PlayerEngineState>
 ) : ViewModel() {
 
+    private val seekController = SeekController(
+        controller = controller,
+        scope = viewModelScope,
+        getDurationMs = { (_progressState.value.durationSec * 1000).toLong() }
+    )
+
     // ── Playback progress ─────────────────────────────────────────────────────
 
     private val _progressState = MutableStateFlow(PlaybackProgressState())
@@ -70,15 +77,13 @@ class PlayerViewModel(
     // While the user is dragging, engineState position updates are suppressed
     // so the seek bar doesn't fight the user's finger.
 
-    @Volatile private var isScrubbing = false
-
     // ── Engine state collector ────────────────────────────────────────────────
 
     init {
         engineState
             .onEach { state ->
                 _isPlaying.update { !state.paused }
-                if (!isScrubbing) {
+                if (!seekController.isScrubbing) {
                     _progressState.update {
                         PlaybackProgressState(
                             positionSec     = state.positionMs / 1000.0,
@@ -94,24 +99,24 @@ class PlayerViewModel(
 
     // ── Seek-bar interaction ──────────────────────────────────────────────────
 
-    /**
-     * Called by PlayerBottomControls when the drag interaction begins.
-     * [currentPositionSec] is the position at drag-start — unused for now but
-     * kept in the signature to match the call site exactly.
-     */
-    fun onSliderDragStart(@Suppress("UNUSED_PARAMETER") currentPositionSec: Double) {
-        isScrubbing = true
+    fun onSliderDragStart(currentPositionMs: Long) {
+        seekController.onDragStart(currentPositionMs)
     }
 
-    /** Called continuously during drag. Issues a fast (keyframe) seek. */
-    fun onSeekGesture(ms: Long) {
-        controller.seekFast(ms)
+    fun onSeekGesture(positionMs: Long) {
+        seekController.onDragMove(positionMs)
     }
 
-    /** Called once on finger-lift. Issues an accurate seek and re-enables updates. */
-    fun onSeekCommit(ms: Long) {
-        controller.seekAccurate(ms)
-        isScrubbing = false
+    fun onSeekCommit(positionMs: Long) {
+        seekController.onDragRelease(positionMs)
+    }
+
+    fun seekForward(currentPositionMs: Long) {
+        seekController.seekForward(currentPositionMs)
+    }
+
+    fun seekBackward(currentPositionMs: Long) {
+        seekController.seekBackward(currentPositionMs)
     }
 
     /**
@@ -147,6 +152,11 @@ class PlayerViewModel(
 
     fun loadFile(uri: String) {
         controller.loadFile(uri)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        seekController.cancel()
     }
 
     // ── Phase 2 stubs ─────────────────────────────────────────────────────────

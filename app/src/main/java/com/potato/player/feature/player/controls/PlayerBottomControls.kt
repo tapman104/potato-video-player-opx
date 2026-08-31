@@ -72,7 +72,7 @@ fun PlayerBottomControls(
 
     LaunchedEffect(isDragged) {
         if (isDragged && dragFraction < 0f) {
-            viewModel.onSliderDragStart(progressState.positionSec)
+            viewModel.onSliderDragStart((progressState.positionSec * 1000.0).toLong())
         }
     }
 
