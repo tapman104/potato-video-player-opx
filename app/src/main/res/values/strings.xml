@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Potato Player</string>
+    <string name="refresh">Refresh</string>
+    <string name="open_video">Open Video</string>
+    <string name="open_file">Open File</string>
+    <string name="no_videos_found">No videos found</string>
+    <string name="use_buttons_open_file">Use the buttons below to open a file</string>
+    <string name="allow_access_videos">Allow access to your videos</string>
+    <string name="permission_rationale">Potato Player needs permission to scan and show videos on your device, just like MX Player.</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+    <string name="no_videos_in_folder">No videos in this folder</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="app_version_label">Version</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="pill_videos">Videos</string>
+    <string name="pill_file">File</string>
+    <string name="player_track_label_fallback">Track %1$d</string>
+    <string name="changelog">Changelog</string>
+    <string name="licenses">Open-source licenses</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="section_app">App</string>
+    <string name="section_device">Device</string>
+    <string name="section_libraries">Libraries</string>
+    <string name="section_source">Source</string>
+    <string name="section_donate">Donate</string>
+    <string name="android_version">Android</string>
+    <string name="manufacturer">Manufacturer</string>
+    <string name="model">Model</string>
+    <string name="device_codename">Device codename</string>
+    <string name="mpv">MPV</string>
+    <string name="ffmpeg">FFmpeg</string>
+    <string name="version_info_coming_soon">Version info coming soon</string>
+    <string name="github">GitHub</string>
+    <string name="buy_me_a_coffee">Buy Me a Coffee</string>
+    <string name="kofi">Ko-fi</string>
+    <string name="upi">UPI</string>
+    <string name="upi_description">Pay via GPay, PhonePe, Paytm or any UPI app</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="no_app_found_to_open_link">No app found to open this link</string>
+</resources>

@@ -1,0 +1,31 @@
+# Android build outputs
+build/
+app/build/
+*/build/
+
+# Large binary/library files
+*.aar
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+libs/
+*.so
+
+# Android Studio and IDE files
+.idea/
+*.iml
+local.properties
+.DS_Store
+
+# Gradle cache and wrapper binaries
+.gradle/
+
+# Keystore and signing files
+*.jks
+*.keystore
+keystore.properties
+
+# Logs and temp files
+*.log
+log-*.txt
+log_*.txt
+.kotlin/sessions/kotlin-compiler-7984673327778797080.salive

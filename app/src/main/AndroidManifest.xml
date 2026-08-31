@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".PotatoApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="Potato Player"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PotatoPlayer">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout|density"
+            android:exported="true"
+            android:screenOrientation="user"
+            android:supportsPictureInPicture="true"
+            android:windowSoftInputMode="adjustNothing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/mp4" />
+                <data android:mimeType="video/x-matroska" />
+                <data android:mimeType="video/mkv" />
+                <data android:mimeType="video/avi" />
+                <data android:mimeType="video/x-msvideo" />
+                <data android:mimeType="video/quicktime" />
+                <data android:mimeType="video/mov" />
+                <data android:mimeType="video/x-ms-wmv" />
+                <data android:mimeType="video/wmv" />
+                <data android:mimeType="video/x-flv" />
+                <data android:mimeType="video/flv" />
+                <data android:mimeType="video/webm" />
+                <data android:mimeType="video/x-m4v" />
+                <data android:mimeType="video/m4v" />
+                <data android:mimeType="video/3gpp" />
+                <data android:mimeType="video/3gp" />
+                <data android:mimeType="video/mp2t" />
+                <data android:mimeType="video/ts" />
+                <data android:mimeType="video/m2ts" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" android:mimeType="video/*" />
+            </intent-filter>
+
+            <!-- content:// URIs with video MIME type -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" android:mimeType="video/*" />
+            </intent-filter>
+
+            <!-- content:// URIs with no MIME type (Telegram behavior) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
