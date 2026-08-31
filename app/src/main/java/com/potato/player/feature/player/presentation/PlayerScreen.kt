@@ -50,7 +50,10 @@ fun PlayerScreen(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                detectTapGestures { viewModel.onUserInteraction() }
+                detectTapGestures {
+                    if (controlsVisible) viewModel.hideControls()
+                    else viewModel.onUserInteraction()
+                }
             }
     ) {
 
@@ -70,6 +73,7 @@ fun PlayerScreen(
                 // 2. Centre play/pause button
                 PlayerCenterPlayPause(
                     isPlaying = isPlaying,
+                    modifier  = Modifier.align(Alignment.Center),
                     onClick   = { viewModel.togglePlay() }
                 )
 

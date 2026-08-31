@@ -133,6 +133,11 @@ class PlayerViewModel(
         }
     }
 
+    fun hideControls() {
+        hideControlsJob?.cancel()
+        _controlsVisible.value = false
+    }
+
     /** Call this when the player is paused — controls stay visible, timer stops. */
     fun onPlaybackPaused() {
         _controlsVisible.value = true

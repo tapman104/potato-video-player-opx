@@ -16,11 +16,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun PlayerCenterPlayPause(
     isPlaying: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     IconButton(
         onClick  = onClick,
-        modifier = PlayerControlsStyles.centerPlayPauseModifier
+        modifier = modifier.then(PlayerControlsStyles.centerPlayPauseModifier)
     ) {
         Icon(
             imageVector        = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
