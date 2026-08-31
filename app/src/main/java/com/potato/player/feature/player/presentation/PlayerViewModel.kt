@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // ---------------------------------------------------------------------------
 // VideoFitMode — declared here so PlayerBottomControls can import from the
@@ -55,6 +58,12 @@ class PlayerViewModel(
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
+    // ── Controls visibility (auto-hide) ───────────────────────────────────────
+    private val _controlsVisible = MutableStateFlow(true)
+    val controlsVisible: StateFlow<Boolean> = _controlsVisible.asStateFlow()
+
+    private var hideControlsJob: Job? = null
 
     // ── Seek-bar drag guard ───────────────────────────────────────────────────
     //
@@ -103,6 +112,31 @@ class PlayerViewModel(
     fun onSeekCommit(ms: Long) {
         controller.seekAccurate(ms)
         isScrubbing = false
+    }
+
+    /**
+     * Call this on every user interaction (tap, seek drag, any gesture).
+     * Shows controls immediately and restarts the 5-second hide timer.
+     * If locked is true, controls stay hidden — caller must check lock state.
+     */
+    fun onUserInteraction() {
+        _controlsVisible.value = true
+        hideControlsJob?.cancel()
+        hideControlsJob = viewModelScope.launch {
+            delay(5_000L)
+            _controlsVisible.value = false
+        }
+    }
+
+    /** Call this when the player is paused — controls stay visible, timer stops. */
+    fun onPlaybackPaused() {
+        _controlsVisible.value = true
+        hideControlsJob?.cancel()
+    }
+
+    /** Call this when the player resumes — restart the hide timer. */
+    fun onPlaybackResumed() {
+        onUserInteraction()
     }
 
     // ── Playback controls ─────────────────────────────────────────────────────

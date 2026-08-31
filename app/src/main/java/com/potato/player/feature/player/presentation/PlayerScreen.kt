@@ -7,6 +7,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potato.player.feature.player.controls.PlayerBottomControls
 import com.potato.player.feature.player.controls.PlayerCenterPlayPause
@@ -38,8 +44,15 @@ fun PlayerScreen(
     }
 
     val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val controlsVisible by viewModel.controlsVisible.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures { viewModel.onUserInteraction() }
+            }
+    ) {
 
         // 1. Video output surface — fills the entire Box
         VideoSurface(
@@ -47,19 +60,28 @@ fun PlayerScreen(
             modifier   = Modifier.fillMaxSize()
         )
 
-        // 2. Centre play/pause button
-        PlayerCenterPlayPause(
-            isPlaying = isPlaying,
-            onClick   = { viewModel.togglePlay() }
-        )
+        AnimatedVisibility(
+            visible = controlsVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // 2. Centre play/pause button
+                PlayerCenterPlayPause(
+                    isPlaying = isPlaying,
+                    onClick   = { viewModel.togglePlay() }
+                )
 
-        // 3. Bottom seek + transport controls
-        PlayerBottomControls(
-            viewModel     = viewModel,
-            onSeekGesture = { ms -> viewModel.onSeekGesture(ms) },
-            onSeekCommit  = { ms -> viewModel.onSeekCommit(ms) },
-            onDragEnd     = { /* isScrubbing is reset inside onSeekCommit */ },
-            modifier      = Modifier.align(Alignment.BottomCenter)
-        )
+                // 3. Bottom seek + transport controls
+                PlayerBottomControls(
+                    viewModel     = viewModel,
+                    onSeekGesture = { ms -> viewModel.onSeekGesture(ms) },
+                    onSeekCommit  = { ms -> viewModel.onSeekCommit(ms) },
+                    onDragEnd     = { /* isScrubbing is reset inside onSeekCommit */ },
+                    modifier      = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+        }
     }
 }
