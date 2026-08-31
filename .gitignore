@@ -28,15 +28,11 @@ keystore.properties
 *.log
 log-*.txt
 log_*.txt
-.kotlin/sessions/kotlin-compiler-7984673327778797080.salive
+.kotlin/sessions/
 build_errors.txt
-.gitignore
-build_final.txt
-.gitignore
-build_final2.txt
-.kotlin/sessions/kotlin-compiler-17564854812287553638.salive
-.gitignore
-.gitignore
+build_final*.txt
 build2.txt
 
 .changelog.md
+changelog.md
+
